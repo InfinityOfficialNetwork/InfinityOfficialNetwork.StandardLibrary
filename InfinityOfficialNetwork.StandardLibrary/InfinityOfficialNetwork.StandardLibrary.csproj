@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InfinityOfficialNetwork.StandardLibrary.DataStructures\InfinityOfficialNetwork.StandardLibrary.DataStructures.csproj" />
+    <ProjectReference Include="..\InfinityOfficialNetwork.StandardLibrary.IO\InfinityOfficialNetwork.StandardLibrary.IO.csproj" />
+  </ItemGroup>
+
+</Project>

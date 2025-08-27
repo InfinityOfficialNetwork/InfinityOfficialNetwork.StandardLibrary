@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Handles;
+﻿using InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Handles;
 
 namespace InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Memory
 {
@@ -28,12 +23,19 @@ namespace InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Memory
 		/// </summary>
 		/// <param name="ptr"></param>
 		public void Free(nint ptr);
+
+		public unsafe TArg* AllocateObject<TArg>();
+		public unsafe TArg* AllocateObject<TArg>(nint count);
+		public ObjectHandle<TArg> AllocateObjectHandle<TArg>();
+		public ObjectHandle<TArg> AllocateObjectHandle<TArg>(nint count);
+		public unsafe void Free<TArg>(TArg* ptr);
+
 	}
 
 	public class InvalidAllocationException : OutOfMemoryException
 	{
 		public InvalidAllocationException(nint size) : base($"An allocation of size {size} failed because there was not enough memory or it was an invalid value")
-		{}
+		{ }
 
 		public InvalidAllocationException(nint size, Exception ex) : base($"An allocation of size {size} failed because there was not enough memory or it was an invalid value", ex)
 		{ }

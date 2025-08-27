@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using InfinityOfficialNetwork.StandardLibrary.DataStructures.Iterators.Generic;
+﻿using InfinityOfficialNetwork.StandardLibrary.DataStructures.Iterators.Generic;
 
 namespace InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers;
 
@@ -20,7 +14,6 @@ public interface IOutputContainer<T> : IOutputIteratable<T>
 
 public interface IForwardContainer<T> : IInputContainer<T>, IOutputContainer<T>, IForwardIteratable<T>
 {
-	new public void Assign(int count);
 	new public void Assign(int count, T seed);
 	new public void Assign(int count, Func<T> factory);
 	new public void Assign(int count, Func<int, T> factory);
@@ -31,7 +24,7 @@ public interface IForwardContainer<T> : IInputContainer<T>, IOutputContainer<T>,
 	new public void AssignRange(ICollection<T> items);
 
 	new public T Front { get; set; }
-	new public int Size { get; }
+	new public int Count { get; }
 	new public int MaxSize { get; }
 	new public int ReserveSize { get; }
 	new public bool IsEmpty { get; }
@@ -82,6 +75,33 @@ public interface IBidirectionalContainer<T> : IForwardContainer<T>, IBidirection
 
 public interface IRandomAccessContainer<T> : IRandomAccessIteratable<T>, IBidirectionalContainer<T>
 {
-	new public T this[int index] { get;set; }
+	new public T this[int index] { get; set; }
 	new public ref T At(int index);
 }
+
+public interface IArrayContainer<T> : IRandomAccessContainer<T>
+{
+}
+
+public interface IVectorContainer<T> : IRandomAccessContainer<T>
+{
+}
+
+public interface IDequeContainer<T> : IRandomAccessContainer<T>
+{
+}
+
+public interface ISinglyLinkedListContainer<T> : IForwardContainer<T>
+{
+
+}
+
+public interface IDoublyLinkedListContainer<T> : IBidirectionalContainer<T>
+{
+}
+
+public interface ISetContainer<T> : IBidirectionalContainer<T>
+{ }
+
+public interface IMapContainer<T> : IBidirectionalContainer<T>
+{ }

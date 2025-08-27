@@ -10,4 +10,7 @@ public interface IForwardIteratable<TArg> : IOutputIteratable<TArg>, IInputItera
 
 	IInputIterator<TArg> IInputIteratable<TArg>.Begin => Begin;
 	IInputIterator<TArg> IInputIteratable<TArg>.End => End;
+
+	IIterator<TArg> IIteratable<TArg>.Begin => Begin;
+	IIterator<TArg> IIteratable<TArg>.End => End;
 }

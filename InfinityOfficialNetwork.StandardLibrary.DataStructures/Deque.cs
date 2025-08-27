@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using System.Collections;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using InfinityOfficialNetwork.StandardLibrary.DataStructures.Allocators;
-using InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers.Old;
 
 namespace InfinityOfficialNetwork.StandardLibrary.DataStructures
 {
@@ -52,7 +44,7 @@ namespace InfinityOfficialNetwork.StandardLibrary.DataStructures
 		private void AddPageFront()
 		{
 			int newPagesCount = pagesCount + 1;
-			T** newData = (T**)NativeMemory.Alloc((nuint)(sizeof(T*)*newPagesCount));
+			T** newData = (T**)NativeMemory.Alloc((nuint)(sizeof(T*) * newPagesCount));
 			Buffer.MemoryCopy(data, newData + 1, (nuint)(sizeof(T*) * newPagesCount), (nuint)(sizeof(T*) * pagesCount));
 			newData[0] = (T*)NativeMemory.Alloc((nuint)sizeof(T));
 			NativeMemory.Free(data);

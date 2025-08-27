@@ -19,4 +19,8 @@
 	  <Folder Include="Adaptors\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\InfinityOfficialNetwork.StandardLibrary.MemoryManagement\InfinityOfficialNetwork.StandardLibrary.MemoryManagement.csproj" />
+	</ItemGroup>
+
 </Project>

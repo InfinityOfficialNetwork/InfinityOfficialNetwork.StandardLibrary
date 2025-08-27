@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 
-namespace InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers;
+namespace InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers.Old;
 
 public interface IVector<T> : IList<T>, IDisposable, ICloneable, IEquatable<IVector<T>> where T : struct
 {
@@ -16,12 +11,12 @@ public interface IVector<T> : IList<T>, IDisposable, ICloneable, IEquatable<IVec
 	new public T Front { get; set; }
 	new public T Back { get; set; }
 	new public unsafe T* Data { get; }
-	
+
 	new public void Assign(int count, T item);
 	new public void AssignRange(T[] items);
 	new public void AssignRange(IEnumerable<T> items);
 	new public void AssignRange(ICollection<T> items);
-	
+
 	new public int IndexOfFirst(T item);
 	new public int IndexOfLast(T item);
 	new public int[] IndexOf(T item);

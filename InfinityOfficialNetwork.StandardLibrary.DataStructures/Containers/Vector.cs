@@ -1,120 +1,73 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using InfinityOfficialNetwork.StandardLibrary.DataStructures.Allocators;
-
-#pragma warning disable CS8500
+﻿using System.Runtime.CompilerServices;
+using InfinityOfficialNetwork.StandardLibrary.DataStructures.Iterators.Generic;
+using InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Memory;
 
 namespace InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers
 {
-	public unsafe class Vector<TArg> : IVector<TArg> where TArg : struct
+	public unsafe class Vector<TArg, TAllocator> : IRandomAccessContainer<TArg> where TArg : unmanaged where TAllocator : IMemoryAllocator, new()
 	{
-		static Vector()
+		public struct VectorIterator : IRandomAccessIterator<TArg>
 		{
-			var type = typeof(TArg);
-			var fields = type.GetFields();
-			foreach (var field in fields)
+			private unsafe TArg* ptr;
+
+			public unsafe VectorIterator(TArg* ptr)
 			{
-				if (!field.FieldType.IsValueType)
-					throw new InvalidOperationException("Vector cannot store structs with references.");
+				this.ptr = ptr;
 			}
+
+			public unsafe TArg this[int index] { get => ptr[index]; set => ptr[index] = value; }
+			public unsafe TArg Current { get => *ptr; set => *ptr = value; }
+			public void Dispose() { }
+			public unsafe bool NotEquals(IIterator<TArg> other) => ptr != ((VectorIterator)other).ptr;
+			public unsafe void MoveNext(int count) => ptr += count;
+			public unsafe void MoveNext() => ptr++;
+			public unsafe void MovePrevious(int count) => ptr -= count;
+			public unsafe void MovePrevious() => ptr--;
 		}
 
-		const int INITIAL_RESERVE = 4;
-
-		private class VectorEnumerator : IEnumerator<TArg>, IEnumerator
+		public struct VectorReverseIterator : IRandomAccessIterator<TArg>
 		{
-			private Vector<TArg> instance;
-			private int position = -1;
+			private unsafe TArg* ptr;
 
-			public VectorEnumerator(Vector<TArg> instance)
+			public unsafe VectorReverseIterator(TArg* ptr)
 			{
-				this.instance = instance;
+				this.ptr = ptr;
 			}
 
-			public TArg Current => instance != null ? instance[position] : throw new ObjectDisposedException(nameof(Vector<TArg>));
-
-			object IEnumerator.Current => Current;
-
-			public void Dispose()
-			{
-			}
-
-			public bool MoveNext()
-			{
-				position++;
-				return position < instance.count;
-			}
-
-			public void Reset()
-			{
-				position = -1;
-			}
+			public unsafe TArg this[int index] { get => ptr[index]; set => ptr[index] = value; }
+			public unsafe TArg Current { get => *ptr; set => *ptr = value; }
+			public void Dispose() { }
+			public unsafe bool NotEquals(IIterator<TArg> other) => ptr != ((VectorReverseIterator)other).ptr;
+			public unsafe void MoveNext(int count) => ptr -= count;
+			public unsafe void MoveNext() => ptr--;
+			public unsafe void MovePrevious(int count) => ptr += count;
+			public unsafe void MovePrevious() => ptr++;
 		}
 
-		private TArg* data;
+		private const int INITIAL_RESERVE = 4, RESERVE_MULTIPLIER = 2;
+		private static TAllocator allocator = new TAllocator();
+		private unsafe TArg* data;
 		private int count, reserve;
 
-		public Vector()
-		{
-			reserve = INITIAL_RESERVE;
-			data = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * reserve));
-			count = 0;
-		}
+		public unsafe TArg this[int index] { get => data[index]; set => data[index] = value; }
 
-		public Vector(TArg[] values)
-		{
-			reserve = values.Length;
-			data = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * reserve));
-			count = reserve;
-			for (int i = 0; i < values.Length; i++)
-			{
-				data[i] = values[i];
-			}
-		}
+		public unsafe IRandomAccessIterator<TArg> Begin => new VectorIterator(data);
+		public unsafe IRandomAccessIterator<TArg> End => new VectorIterator(data + count + 1);
+		public unsafe IRandomAccessIterator<TArg> ReverseBegin => new VectorReverseIterator(data + count);
+		public unsafe IRandomAccessIterator<TArg> ReverseEnd => new VectorReverseIterator(data - 1);
 
-		public Vector(IEnumerable<TArg> values)
-		{
-			reserve = INITIAL_RESERVE;
-			data = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * reserve));
-			count = 0;
-			foreach (var v in values)
-			{
-				Add(v);
-			}
-		}
-
-		public Vector(Vector<TArg> values)
-		{
-			reserve = values.reserve;
-			count = values.count;
-			data = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * reserve));
-			Buffer.MemoryCopy(values.data, data, reserve * sizeof(TArg), count * sizeof(TArg));
-		}
-
-		public TArg this[int index] { get => data[index]; set => data[index] = value; }
+		public unsafe TArg Back { get => data[count - 1]; set => data[count - 1] = value; }
+		public unsafe TArg Front { get => *data; set => *data = value; }
 
 		public int Count => count;
-		public bool IsReadOnly => false;
-
-		public unsafe TArg* Data => data;
-
-		public int Reserve => reserve;
-
-		public int Size => count;
 
 		public int MaxSize => int.MaxValue;
 
+		public int ReserveSize => reserve;
+
 		public bool IsEmpty => count == 0;
 
-		public TArg Front { get => data[0]; set => data[0] = value; }
-		public TArg Back { get => data[count - 1]; set => data[count - 1] = value; }
-
-		public void Add(TArg item)
+		public unsafe void AddBack(TArg item)
 		{
 			if (reserve > count)
 			{
@@ -122,368 +75,636 @@ namespace InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers
 			}
 			else
 			{
-				int newReserve = reserve * 2;
-				TArg* newData = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * newReserve));
-				Buffer.MemoryCopy(data, newData, newReserve * sizeof(TArg), count * sizeof(TArg));
-				reserve = newReserve;
-				NativeMemory.Free(data);
-				data = newData;
-				data[count++] = item;
-			}
-		}
-
-		public void Clear()
-		{
-			NativeMemory.Free(data);
-			data = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * INITIAL_RESERVE));
-			count = 0;
-			reserve = INITIAL_RESERVE;
-		}
-
-		public bool Contains(TArg item)
-		{
-			for (int i = 0; i < count; i++)
-			{
-				if (data[i].Equals(item))
-					return true;
-			}
-			return false;
-		}
-
-		public void CopyTo(TArg[] array, int arrayIndex)
-		{
-			for (int i = 0; i < count; ++i)
-			{
-				array[arrayIndex + i] = data[i];
-			}
-		}
-
-		public IEnumerator<TArg> GetEnumerator()
-		{
-			return new VectorEnumerator(this);
-		}
-
-		public int IndexOf(TArg item)
-		{
-			for (int i = 0; i < count; i++)
-			{
-				if (data[i].Equals(item))
-					return i;
-			}
-			return -1;
-		}
-
-		public void Insert(int index, TArg item)
-		{
-			if (reserve > count)
-			{
-				for (long i = count; i > index; --i)
-				{
-					data[i] = data[i - 1];
-				}
-				data[index] = item;
-				count++;
-			}
-			else
-			{
-				int newReserve = reserve * 2;
-				TArg* newData = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * newReserve));
-				Buffer.MemoryCopy(data, newData, newReserve * sizeof(TArg), count * sizeof(TArg));
-				NativeMemory.Free(data);
-				data = newData;
-				reserve = newReserve;
-				for (long i = count; i > index; --i)
-				{
-					data[i] = data[i - 1];
-				}
-				data[index] = item;
-				count++;
-			}
-		}
-
-		public bool Remove(TArg item)
-		{
-			for (int i = 0; i < count; i++)
-			{
-				if (data[i].Equals(item))
-				{
-					RemoveAt(i);
-					return true;
-				}
-			}
-			return false;
-		}
-
-
-		public void RemoveAt(int index)
-		{
-			if (!(count * 2 < reserve && reserve > INITIAL_RESERVE))
-			{
-				for (int j = index; j < count - 1; j++)
-				{
-					data[j] = data[j + 1];
-				}
-			}
-			else
-			{
-				int newReserve = reserve / 2;
-				TArg* newData = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * newReserve));
-				Buffer.MemoryCopy(data, newData, (nuint)(index * sizeof(TArg)), (nuint)(index * sizeof(TArg)));
-				nuint trailingBytes = (nuint)((count - index - 1) * sizeof(TArg));
-				Buffer.MemoryCopy(data + index + 1, newData + index, trailingBytes, trailingBytes);
-				NativeMemory.Free(data);
-				data = newData;
-				reserve = newReserve;
-			}
-			count--;
-		}
-
-		public void AddBackRange(int index, int count)
-		{
-			if (!(this.count * 2 < reserve && reserve > INITIAL_RESERVE))
-			{
-				for (int j = index; j < this.count - count; j++)
-				{
-					data[j] = data[j + count];
-				}
-			}
-			else
-			{
-				int newReserve = reserve / 2;
-				TArg* newData = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * newReserve));
-				Buffer.MemoryCopy(data, newData, (nuint)(index * sizeof(TArg)), (nuint)(index * sizeof(TArg)));
-				nuint trailingBytes = (nuint)((this.count - index - count) * sizeof(TArg));
-				Buffer.MemoryCopy(data + index + count, newData + index, trailingBytes, trailingBytes);
-				NativeMemory.Free(data);
-				data = newData;
-				reserve = newReserve;
-			}
-			this.count -= count;
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (data != null)
-			{
-				NativeMemory.Free(data);
-				data = null;
-			}
-		}
-
-		~Vector()
-		{
-			Dispose(disposing: false);
-		}
-
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-			Dispose(disposing: true);
-			GC.SuppressFinalize(this);
-		}
-
-		public object Clone()
-		{
-			return new Vector<TArg>(this);
-		}
-
-		public void RemoveEnd() => RemoveAt(count - 1);
-
-		public void AddReserve(int newReserve)
-		{
-			if (newReserve > reserve)
-			{
-				TArg* newData = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * newReserve));
-				Buffer.MemoryCopy(data, newData, newReserve * sizeof(TArg), count * sizeof(TArg));
-				NativeMemory.Free(data);
-				data = newData;
-				reserve = newReserve;
-			}
-		}
-
-		public bool Equals(IVector<TArg>? other)
-		{
-			if (other != null && count == other.Count)
-			{
+				int newReserve = reserve * RESERVE_MULTIPLIER;
+				TArg* newData = allocator.AllocateObject<TArg>(newReserve);
 				for (int i = 0; i < count; i++)
-					if (!this[i].Equals(other[i]))
-						return false;
-				return true;
+					newData[i] = data[i];
+				reserve = newReserve;
+				allocator.Free(data);
+				data = newData;
+				data[count++] = item;
 			}
-			else return false;
 		}
 
-		public void AddEndRange(IEnumerable<TArg> collection)
+		public void AddBackRange(IRandomAccessContainer<TArg> items)
 		{
-			foreach (var item in collection) { Add(item); }
-		}
-
-		public void AddEndRange(TArg[] collection)
-		{
-			if (reserve > count + collection.Length)
+			if (reserve >= count + items.Count)
 			{
-				foreach	(var item in collection)
+				for (int i = 0; i < items.Count; i++)
+					data[count++] = items[i];
+			}
+			else
+			{
+				int requiredReserve = count + items.Count;
+				int newReserve = reserve;
+				if (newReserve == 0) newReserve = INITIAL_RESERVE;
+				while (newReserve < requiredReserve)
+				{
+					newReserve *= RESERVE_MULTIPLIER;
+				}
+				TArg* newData = allocator.AllocateObject<TArg>(newReserve);
+				for (int i = 0; i < count; i++)
+					newData[i] = data[i];
+				reserve = newReserve;
+				allocator.Free(data);
+				data = newData;
+				for (int i = 0; i < items.Count; i++)
+					data[count++] = items[i];
+			}
+		}
+
+		private struct TempStoragePage
+		{
+			public const int PAGE_SIZE = 64;
+
+			[InlineArray(PAGE_SIZE)]
+			public struct Item { public TArg Value; }
+
+			public Item items;
+			public TempStoragePage* next;
+		}
+
+		public unsafe void AddBackRange(IInputIteratable<TArg> items) => AddBackRange(items.Begin, items.End);
+
+		private void AddBackRangeFromPages(TempStoragePage* firstPage, int pageCount, int pageIndex)
+		{
+			TempStoragePage* currentPage = firstPage;
+			int iCount = (pageCount * TempStoragePage.PAGE_SIZE) + pageIndex;
+
+			if (reserve >= count + iCount)
+			{
+				pageIndex = 0;
+				currentPage = firstPage;
+				for (int i = 0; i < iCount; i++)
+				{
+					if (pageIndex == TempStoragePage.PAGE_SIZE)
+					{
+						currentPage = currentPage->next;
+						pageIndex = 0;
+					}
+					data[count++] = currentPage->items[pageIndex++];
+				}
+			}
+			else
+			{
+				int requiredReserve = count + iCount;
+				int newReserve = reserve;
+				if (newReserve == 0) newReserve = INITIAL_RESERVE;
+				while (newReserve < requiredReserve)
+				{
+					newReserve *= RESERVE_MULTIPLIER;
+				}
+				TArg* newData = allocator.AllocateObject<TArg>(newReserve);
+				for (int i = 0; i < count; i++)
+					newData[i] = data[i];
+				reserve = newReserve;
+				allocator.Free(data);
+				data = newData;
+				pageIndex = 0;
+				currentPage = firstPage;
+				for (int i = 0; i < iCount; i++)
+				{
+					if (pageIndex == TempStoragePage.PAGE_SIZE)
+					{
+						currentPage = currentPage->next;
+						pageIndex = 0;
+					}
+					data[count++] = currentPage->items[pageIndex++];
+				}
+			}
+		}
+
+		public void AddBackRange(IInputIterator<TArg> begin, IInputIterator<TArg> end)
+		{
+			TempStoragePage* firstPage = stackalloc TempStoragePage[1];
+			TempStoragePage* currentPage = firstPage;
+
+			int pageCount = 0, pageIndex = 0;
+			for (IInputIterator<TArg> i = begin, e = end; i.LessThan(e); i.MoveNext())
+			{
+				if (pageIndex == TempStoragePage.PAGE_SIZE)
+				{
+					TempStoragePage* newPage;
+
+					if (pageCount < 16)
+					{
+						TempStoragePage* page = stackalloc TempStoragePage[1];
+						newPage = page;
+						newPage->next = null;
+					}
+					else
+					{
+						newPage = allocator.AllocateObject<TempStoragePage>();
+						newPage->next = null;
+					}
+
+					currentPage->next = newPage;
+					currentPage = newPage;
+					pageIndex = 0;
+					pageCount++;
+				}
+				currentPage->items[pageIndex++] = i.Current;
+			}
+
+			AddBackRangeFromPages(firstPage, pageCount, pageIndex);
+
+			TempStoragePage* pageToFree = firstPage;
+			for (int i = 0; i < 16; i++)
+			{
+				if (pageToFree == null) break;
+				pageToFree = pageToFree->next;
+			}
+
+			while (pageToFree != null)
+			{
+				TempStoragePage* next = pageToFree->next;
+				allocator.Free(pageToFree);
+				pageToFree = next;
+			}
+		}
+
+		public void AddBackRange(TArg* items, int iCount)
+		{
+			if (reserve >= count + iCount)
+			{
+				for (int i = 0; i < iCount; i++)
+					data[count++] = items[i];
+			}
+			else
+			{
+				int requiredReserve = count + iCount;
+				int newReserve = reserve;
+				if (newReserve == 0) newReserve = INITIAL_RESERVE;
+				while (newReserve < requiredReserve)
+				{
+					newReserve *= RESERVE_MULTIPLIER;
+				}
+				TArg* newData = allocator.AllocateObject<TArg>(newReserve);
+				for (int i = 0; i < count; i++)
+					newData[i] = data[i];
+				reserve = newReserve;
+				allocator.Free(data);
+				data = newData;
+				for (int i = 0; i < iCount; i++)
+					data[count++] = items[i];
+			}
+		}
+
+		public unsafe void AddBackRange(IEnumerable<TArg> items)
+		{
+			TempStoragePage* firstPage = stackalloc TempStoragePage[1];
+			TempStoragePage* currentPage = firstPage;
+
+			int pageCount = 0, pageIndex = 0;
+			foreach (var item in items)
+			{
+				if (pageIndex == TempStoragePage.PAGE_SIZE)
+				{
+					TempStoragePage* newPage;
+
+					if (pageCount < 16)
+					{
+						TempStoragePage* page = stackalloc TempStoragePage[1];
+						newPage = page;
+						newPage->next = null;
+					}
+					else
+					{
+						newPage = allocator.AllocateObject<TempStoragePage>();
+						newPage->next = null;
+					}
+
+					currentPage->next = newPage;
+					currentPage = newPage;
+					pageIndex = 0;
+					pageCount++;
+				}
+				currentPage->items[pageIndex++] = item;
+			}
+
+			AddBackRangeFromPages(firstPage, pageCount, pageIndex);
+
+			TempStoragePage* pageToFree = firstPage;
+			for (int i = 0; i < 16; i++)
+			{
+				if (pageToFree == null) break;
+				pageToFree = pageToFree->next;
+			}
+
+			while (pageToFree != null)
+			{
+				TempStoragePage* next = pageToFree->next;
+				allocator.Free(pageToFree);
+				pageToFree = next;
+			}
+		}
+
+		public void AddBackRange(ICollection<TArg> items)
+		{
+			if (reserve >= count + items.Count)
+			{
+				foreach (var item in items)
 					data[count++] = item;
 			}
 			else
 			{
-				int newReserve = Math.Max(reserve * 2, reserve + collection.Length + 4);
-				TArg* newData = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * newReserve));
-				Buffer.MemoryCopy(data, newData, newReserve * sizeof(TArg), count * sizeof(TArg));
+				int requiredReserve = count + items.Count;
+				int newReserve = reserve;
+				if (newReserve == 0) newReserve = INITIAL_RESERVE;
+				while (newReserve < requiredReserve)
+				{
+					newReserve *= RESERVE_MULTIPLIER;
+				}
+				TArg* newData = allocator.AllocateObject<TArg>(newReserve);
+				for (int i = 0; i < count; i++)
+					newData[i] = data[i];
 				reserve = newReserve;
-				NativeMemory.Free(data);
+				allocator.Free(data);
 				data = newData;
-				foreach (var item in collection)
+				foreach (var item in items)
 					data[count++] = item;
 			}
 		}
 
-		public void AddEndRange(ICollection<TArg> collection)
+		public unsafe void AddFront(TArg item)
 		{
-			if (reserve > count + collection.Count)
+			throw new NotImplementedException();
+		}
+
+		public void AddFrontRange(IRandomAccessContainer<TArg> items)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddFrontRange(IInputIteratable<TArg> items)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddFrontRange(IInputIterator<TArg> begin, IInputIterator<TArg> end)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddFrontRange(IEnumerable<TArg> items)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddFrontRange(ICollection<TArg> items)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void AssignRangeFromPages(TempStoragePage* firstPage, int pageCount, int pageIndex)
+		{
+			TempStoragePage* currentPage = firstPage;
+			int count = (pageCount * TempStoragePage.PAGE_SIZE) + pageIndex;
+
+			allocator.Free(data);
+			reserve = Math.Max(this.count = count, INITIAL_RESERVE);
+			data = allocator.AllocateObject<TArg>(reserve);
+
+			pageIndex = 0;
+			currentPage = firstPage;
+			for (int i = 0; i < count; i++)
 			{
-				foreach (var item in collection)
-					data[count++] = item;
+				if (pageIndex == TempStoragePage.PAGE_SIZE)
+				{
+					currentPage = currentPage->next;
+					pageIndex = 0;
+				}
+				data[this.count++] = currentPage->items[pageIndex++];
 			}
-			else
+		}
+
+		public void Assign(int count, TArg seed)
+		{
+			allocator.Free(data);
+			reserve = Math.Max(this.count = count, INITIAL_RESERVE);
+			data = allocator.AllocateObject<TArg>(reserve);
+			for (int i = 0; i < count; i++)
+				data[i] = seed;
+		}
+
+		public void Assign(int count, Func<TArg> factory)
+		{
+			allocator.Free(data);
+			reserve = Math.Max(this.count = count, INITIAL_RESERVE);
+			data = allocator.AllocateObject<TArg>(reserve);
+			for (int i = 0; i < count; i++)
+				data[i] = factory();
+		}
+
+		public void Assign(int count, Func<int, TArg> factory)
+		{
+			allocator.Free(data);
+			reserve = Math.Max(this.count = count, INITIAL_RESERVE);
+			data = allocator.AllocateObject<TArg>(reserve);
+			for (int i = 0; i < count; i++)
+				data[i] = factory(i);
+		}
+
+		public void AssignRange(IRandomAccessContainer<TArg> items)
+		{
+			allocator.Free(data);
+			int requiredReserve = count + items.Count;
+			reserve = INITIAL_RESERVE;
+			while (reserve < requiredReserve)
+				reserve *= RESERVE_MULTIPLIER;
+
+			data = allocator.AllocateObject<TArg>(reserve);
+			for (int i = 0; i < items.Count; i++)
+				data[count++] = items[i];
+		}
+
+		public void AssignRange(IInputIteratable<TArg> items)
+		{
+			TempStoragePage* firstPage = stackalloc TempStoragePage[1];
+			TempStoragePage* currentPage = firstPage;
+
+			int pageCount = 0, pageIndex = 0;
+			for (IInputIterator<TArg> i = items.Begin, e = items.End; i.LessThan(e); i.MoveNext())
 			{
-				int newReserve = Math.Max(reserve * 2, reserve + collection.Count + 4);
-				TArg* newData = (TArg*)NativeMemory.Alloc((nuint)(sizeof(TArg) * newReserve));
-				Buffer.MemoryCopy(data, newData, newReserve * sizeof(TArg), count * sizeof(TArg));
-				reserve = newReserve;
-				NativeMemory.Free(data);
-				data = newData;
-				foreach (var item in collection)
-					data[count++] = item;
+				if (pageIndex == TempStoragePage.PAGE_SIZE)
+				{
+					TempStoragePage* newPage;
+
+					if (pageCount < 16)
+					{
+						TempStoragePage* page = stackalloc TempStoragePage[1];
+						newPage = page;
+						newPage->next = null;
+					}
+					else
+					{
+						newPage = allocator.AllocateObject<TempStoragePage>();
+						newPage->next = null;
+					}
+
+					currentPage->next = newPage;
+					currentPage = newPage;
+					pageIndex = 0;
+					pageCount++;
+				}
+				currentPage->items[pageIndex++] = i.Current;
+			}
+
+			AssignRangeFromPages(firstPage, pageCount, pageIndex);
+
+			TempStoragePage* pageToFree = firstPage;
+			for (int i = 0; i < 16; i++)
+			{
+				if (pageToFree == null) break;
+				pageToFree = pageToFree->next;
+			}
+
+			while (pageToFree != null)
+			{
+				TempStoragePage* next = pageToFree->next;
+				allocator.Free(pageToFree);
+				pageToFree = next;
 			}
 		}
 
-		public ref TArg At(int index)
+		public void AssignRange(IInputIterator<TArg> begin, IInputIterator<TArg> end)
 		{
-			throw new NotImplementedException();
-		}
+			TempStoragePage* firstPage = stackalloc TempStoragePage[1];
+			TempStoragePage* currentPage = firstPage;
 
-		public void Assign(int count, TArg item)
-		{
-			throw new NotImplementedException();
-		}
+			int pageCount = 0, pageIndex = 0;
+			for (IInputIterator<TArg> i = begin, e = end; i.LessThan(e); i.MoveNext())
+			{
+				if (pageIndex == TempStoragePage.PAGE_SIZE)
+				{
+					TempStoragePage* newPage;
 
-		public void AssignRange(TArg[] items)
-		{
-			throw new NotImplementedException();
+					if (pageCount < 16)
+					{
+						TempStoragePage* page = stackalloc TempStoragePage[1];
+						newPage = page;
+						newPage->next = null;
+					}
+					else
+					{
+						newPage = allocator.AllocateObject<TempStoragePage>();
+						newPage->next = null;
+					}
+
+					currentPage->next = newPage;
+					currentPage = newPage;
+					pageIndex = 0;
+					pageCount++;
+				}
+				currentPage->items[pageIndex++] = i.Current;
+			}
+
+			AssignRangeFromPages(firstPage, pageCount, pageIndex);
+
+			TempStoragePage* pageToFree = firstPage;
+			for (int i = 0; i < 16; i++)
+			{
+				if (pageToFree == null) break;
+				pageToFree = pageToFree->next;
+			}
+
+			while (pageToFree != null)
+			{
+				TempStoragePage* next = pageToFree->next;
+				allocator.Free(pageToFree);
+				pageToFree = next;
+			}
 		}
 
 		public void AssignRange(IEnumerable<TArg> items)
 		{
-			throw new NotImplementedException();
+			TempStoragePage* firstPage = stackalloc TempStoragePage[1];
+			TempStoragePage* currentPage = firstPage;
+
+			int pageCount = 0, pageIndex = 0;
+			foreach (var item in items)
+			{
+				if (pageIndex == TempStoragePage.PAGE_SIZE)
+				{
+					TempStoragePage* newPage;
+
+					if (pageCount < 16)
+					{
+						TempStoragePage* page = stackalloc TempStoragePage[1];
+						newPage = page;
+						newPage->next = null;
+					}
+					else
+					{
+						newPage = allocator.AllocateObject<TempStoragePage>();
+						newPage->next = null;
+					}
+
+					currentPage->next = newPage;
+					currentPage = newPage;
+					pageIndex = 0;
+					pageCount++;
+				}
+				currentPage->items[pageIndex++] = item;
+			}
+
+			AssignRangeFromPages(firstPage, pageCount, pageIndex);
+
+			TempStoragePage* pageToFree = firstPage;
+			for (int i = 0; i < 16; i++)
+			{
+				if (pageToFree == null) break;
+				pageToFree = pageToFree->next;
+			}
+
+			while (pageToFree != null)
+			{
+				TempStoragePage* next = pageToFree->next;
+				allocator.Free(pageToFree);
+				pageToFree = next;
+			}
 		}
 
 		public void AssignRange(ICollection<TArg> items)
 		{
-			throw new NotImplementedException();
+			allocator.Free(data);
+			int requiredReserve = count + items.Count;
+			reserve = INITIAL_RESERVE;
+			while (reserve < requiredReserve)
+				reserve *= RESERVE_MULTIPLIER;
+
+			data = allocator.AllocateObject<TArg>(reserve);
+			foreach (var item in items)
+				data[count++] = item;
 		}
 
-		public int IndexOfFirst(TArg item)
+		public ref TArg At(int index)
+		{
+			return ref data[index];
+		}
+
+		public void Clear()
+		{
+			count = reserve = 0;
+			allocator.Free(data);
+			data = null;
+		}
+
+		public void Dispose()
+		{
+			if (data != null)
+			{
+				allocator.Free(data);
+				data = null;
+			}
+		}
+
+		public void EmplaceAfter(IForwardIterator<TArg> pos, Func<TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		public int IndexOfLast(TArg item)
+		public void EmplaceAfter(IForwardIterator<TArg> pos, int count, Func<TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		int[] IVector<TArg>.IndexOf(TArg item)
+		public void EmplaceAfter(IForwardIterator<TArg> pos, int count, Func<int, TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool ContainsAllRange(TArg[] items)
+		public void EmplaceBack(Func<TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool ContainsAllRange(IEnumerable<TArg> items)
+		public void EmplaceBack(int count, Func<TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool ContainsAllRange(ICollection<TArg> items)
+		public void EmplaceBack(int count, Func<int, TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool ContainsAnyRange(TArg[] items)
+		public void EmplaceFront(Func<TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool ContainsAnyRange(IEnumerable<TArg> items)
+		public void EmplaceFront(int count, Func<TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool ContainsAnyRange(ICollection<TArg> items)
+		public void EmplaceFront(int count, Func<int, TArg> factory)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void ShrinkToFit()
+		public void EraseAfter(IForwardIterator<TArg> pos)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void InsertRange(int index, TArg[] items)
+		public void EraseAfter(IForwardIterator<TArg> begin, IForwardIterator<TArg> end)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void InsertRange(int index, IEnumerable<TArg> items)
+		public void InsertAfter(IForwardIterator<TArg> pos, TArg item)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void InsertRange(int index, ICollection<TArg> items)
+		public void InsertRangeAfter(IForwardIterator<TArg> pos, IRandomAccessContainer<TArg> items)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void AddEnd(TArg item)
+		public void InsertRangeAfter(IForwardIterator<TArg> pos, IInputIteratable<TArg> items)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void EmplaceEnd()
+		public void InsertRangeAfter(IForwardIterator<TArg> pos, IInputIterator<TArg> begin, IInputIterator<TArg> end)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void EmplaceEndRange(int count)
+		public void InsertRangeAfter(IForwardIterator<TArg> pos, IEnumerable<TArg> items)
 		{
 			throw new NotImplementedException();
 		}
 
-		bool IVector<TArg>.RemoveEnd()
+		public void InsertRangeAfter(IForwardIterator<TArg> pos, ICollection<TArg> items)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool RemoveEndRange(int count)
+		public void RemoveBack()
 		{
 			throw new NotImplementedException();
 		}
 
-		bool IVector<TArg>.RemoveAt(int index)
+		public void RemoveBack(int count)
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool RemoveAtRange(int index, int count)
+		public void RemoveFront()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RemoveFront(int count)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Reserve(int size)
 		{
 			throw new NotImplementedException();
 		}

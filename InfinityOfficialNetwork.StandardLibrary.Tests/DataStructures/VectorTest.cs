@@ -1,10 +1,4 @@
-﻿using InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers;
-using InfinityOfficialNetwork.StandardLibrary.DataStructures.Iterators;
-using InfinityOfficialNetwork.StandardLibrary.DataStructures.Iterators.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers.Old;
 
 namespace InfinityOfficialNetwork.StandardLibrary.Tests.DataStructures
 {

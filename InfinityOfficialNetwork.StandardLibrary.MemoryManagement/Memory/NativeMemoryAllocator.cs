@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Handles;
 
 namespace InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Memory
@@ -87,6 +82,34 @@ namespace InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Memory
 		public void Free(nint ptr) => Marshal.FreeHGlobal(ptr);
 #endif
 
+
+		private class NativeObjectHandle<TArg> : ObjectHandle<TArg>
+		{
+			internal unsafe NativeObjectHandle(NativeMemoryAllocator nativeMemoryAllocator, TArg* handle)
+			{
+				_memoryAllocator = nativeMemoryAllocator;
+				SetHandle((nint)handle);
+			}
+			private readonly NativeMemoryAllocator _memoryAllocator;
+
+			protected override unsafe bool ReleaseHandle()
+			{
+				_memoryAllocator.Free(handle);
+				handle = IntPtr.Zero;
+				return true;
+			}
+		}
+
+
+		public unsafe TArg* AllocateObject<TArg>() => (TArg*)Allocate(sizeof(TArg));
+
+		public unsafe TArg* AllocateObject<TArg>(nint count) => (TArg*)Allocate(sizeof(TArg) * count);
+
+		public unsafe ObjectHandle<TArg> AllocateObjectHandle<TArg>() => new NativeObjectHandle<TArg>(this, AllocateObject<TArg>());
+
+		public unsafe ObjectHandle<TArg> AllocateObjectHandle<TArg>(nint count) => new NativeObjectHandle<TArg>(this, AllocateObject<TArg>(count));
+
+		public unsafe void Free<TArg>(TArg* ptr) => Free((nint)ptr);
 
 		public void Dispose() { }
 

@@ -19,7 +19,7 @@ namespace InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Memory
 		/// <exception cref="InvalidAllocationException"></exception>
 		public MemoryHandle AllocateHandle(nint size);
 		/// <summary>
-		/// Frees the memory block ptr. The memory block MUST have been allocated by this instance. Exceptions will only be generated in DEBUG mode, it will be up to the implementation to crash the program on release configuration.
+		/// Frees the memory block ptr. The memory block MUST have been allocated by this instance. Exceptions will only be generated in DEBUG mode, it will be up to the implementation to crash the program on release configuration. If ptr is NULL, does nothing.
 		/// </summary>
 		/// <param name="ptr"></param>
 		public void Free(nint ptr);

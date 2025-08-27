@@ -1,107 +1,190 @@
-﻿using InfinityOfficialNetwork.StandardLibrary.DataStructures.Iterators.Generic;
+﻿using InfinityOfficialNetwork.StandardLibrary.DataStructures.Iterators;
 
 namespace InfinityOfficialNetwork.StandardLibrary.DataStructures.Containers;
 
-public interface IInputContainer<T> : IInputIteratable<T>
+public interface IContainer<TArg> : IDisposable
 {
-
+	public int MaxSize { get; }
 }
 
-public interface IOutputContainer<T> : IOutputIteratable<T>
+public interface IContainerAssign<TArg>
 {
+	public void Assign(TArg value) => Assign(1, value);
+	public void Assign(int count, TArg value);
+	public void Assign(int count, Func<TArg> factory) => Assign(count, (int i) => factory());
+	public void Assign(int count, Func<int, TArg> factory);
 
+	public void AssignRange(IInputIterator<TArg> first, IInputIterator<TArg> last);
+	public void AssignRange(IStreamingInputIterator<TArg> first, IStreamingIterator<TArg> last) => AssignRange(first, last);
+	public void AssignRange(IForwardIterator<TArg> first, IForwardIterator<TArg> last) => AssignRange(first, last);
+	public void AssignRange(IBidirectionalIterator<TArg> first, IBidirectionalIterator<TArg> last) => AssignRange(first, last);
+	public void AssignRange(IRandomAccessIterator<TArg> first, IRandomAccessIterator<TArg> last) => AssignRange(first, last);
+	public void AssignRange(IContiguousIterator<TArg> first, IContiguousIterator<TArg> last) => AssignRange(first, last);
+
+	public void AssignRange(IInputIteratable<TArg> items) => AssignRange(items.Begin, items.End);
+	public void AssignRange(IStreamingInputIteratable<TArg> items) => AssignRange(items.Begin, items.End);
+	public void AssignRange(IForwardIteratable<TArg> items) => AssignRange(items.Begin, items.End);
+	public void AssignRange(IBidirectionalIteratable<TArg> items) => AssignRange(items.Begin, items.End);
+	public void AssignRange(IRandomAccessIteratable<TArg> items) => AssignRange(items.Begin, items.End);
+	public void AssignRange(IContiguousIteratable<TArg> items) => AssignRange(items.Begin, items.End);
 }
 
-public interface IForwardContainer<T> : IInputContainer<T>, IOutputContainer<T>, IForwardIteratable<T>
+public interface IContainerElementRandomAccess<TArg>
 {
-	new public void Assign(int count, T seed);
-	new public void Assign(int count, Func<T> factory);
-	new public void Assign(int count, Func<int, T> factory);
-	new public void AssignRange(IRandomAccessContainer<T> items);
-	new public void AssignRange(IInputIteratable<T> items);
-	new public void AssignRange(IInputIterator<T> begin, IInputIterator<T> end);
-	new public void AssignRange(IEnumerable<T> items);
-	new public void AssignRange(ICollection<T> items);
-
-	new public T Front { get; set; }
-	new public int Count { get; }
-	new public int MaxSize { get; }
-	new public int ReserveSize { get; }
-	new public bool IsEmpty { get; }
-
-	new public void Reserve(int size);
-
-	new public void Clear();
-	new public void InsertAfter(IForwardIterator<T> pos, T item);
-	new public void EmplaceAfter(IForwardIterator<T> pos, Func<T> factory);
-	new public void EmplaceAfter(IForwardIterator<T> pos, int count, Func<T> factory);
-	new public void EmplaceAfter(IForwardIterator<T> pos, int count, Func<int, T> factory);
-	new public void InsertRangeAfter(IForwardIterator<T> pos, IRandomAccessContainer<T> items);
-	new public void InsertRangeAfter(IForwardIterator<T> pos, IInputIteratable<T> items);
-	new public void InsertRangeAfter(IForwardIterator<T> pos, IInputIterator<T> begin, IInputIterator<T> end);
-	new public void InsertRangeAfter(IForwardIterator<T> pos, IEnumerable<T> items);
-	new public void InsertRangeAfter(IForwardIterator<T> pos, ICollection<T> items);
-	new public void EraseAfter(IForwardIterator<T> pos);
-	new public void EraseAfter(IForwardIterator<T> begin, IForwardIterator<T> end);
-	new public void AddFront(T item);
-	new public void AddFrontRange(IRandomAccessContainer<T> items);
-	new public void AddFrontRange(IInputIteratable<T> items);
-	new public void AddFrontRange(IInputIterator<T> begin, IInputIterator<T> end);
-	new public void AddFrontRange(IEnumerable<T> items);
-	new public void AddFrontRange(ICollection<T> items);
-	new public void EmplaceFront(Func<T> factory);
-	new public void EmplaceFront(int count, Func<T> factory);
-	new public void EmplaceFront(int count, Func<int, T> factory);
-	new public void RemoveFront();
-	new public void RemoveFront(int count);
+	public ref TArg this[int index] { get => ref At(index); }
+	public ref TArg At(int index);
 }
 
-public interface IBidirectionalContainer<T> : IForwardContainer<T>, IBidirectionalIteratable<T>
+public interface IContainerElementFrontAccess<TArg>
 {
-	new public T Back { get; set; }
-
-	new public void AddBack(T item);
-	new public void AddBackRange(IRandomAccessContainer<T> items);
-	new public void AddBackRange(IInputIteratable<T> items);
-	new public void AddBackRange(IInputIterator<T> begin, IInputIterator<T> end);
-	new public void AddBackRange(IEnumerable<T> items);
-	new public void AddBackRange(ICollection<T> items);
-	new public void EmplaceBack(Func<T> factory);
-	new public void EmplaceBack(int count, Func<T> factory);
-	new public void EmplaceBack(int count, Func<int, T> factory);
-	new public void RemoveBack();
-	new public void RemoveBack(int count);
+	public ref TArg Front { get; }
 }
 
-public interface IRandomAccessContainer<T> : IRandomAccessIteratable<T>, IBidirectionalContainer<T>
+public interface IContainerElementBackAccess<TArg>
 {
-	new public T this[int index] { get; set; }
-	new public ref T At(int index);
+	public ref TArg Back { get; }
 }
 
-public interface IArrayContainer<T> : IRandomAccessContainer<T>
+public interface IContainerElementNativeArrayAccess<TArg>
 {
+	public unsafe TArg* Data { get; }
 }
 
-public interface IVectorContainer<T> : IRandomAccessContainer<T>
+public interface IContainerCapacityIsEmpty<TArg>
 {
+	public bool IsEmpty { get; }
 }
 
-public interface IDequeContainer<T> : IRandomAccessContainer<T>
+public interface IContainerCapacitySize<TArg>
 {
+	public int Size { get; }
 }
 
-public interface ISinglyLinkedListContainer<T> : IForwardContainer<T>
+public interface IContainerCapacityResize<TArg>
 {
-
+	public void Resize(int size);
 }
 
-public interface IDoublyLinkedListContainer<T> : IBidirectionalContainer<T>
+public interface IContainerCapacityReserve<TArg>
 {
+	public int ReserveSize { get; }
+	public void Reserve(int size);
+	public void ShrinkToFit();
 }
 
-public interface ISetContainer<T> : IBidirectionalContainer<T>
-{ }
+public interface IContainerClear<TArg>
+{
+	public void Clear();
+}
 
-public interface IMapContainer<T> : IBidirectionalContainer<T>
-{ }
+public interface IContainerInsertAtIndex<TArg>
+{
+	public void Insert(int index, TArg value);
+	public void Insert(int index, int count, TArg value);
+	public void Insert(int index, int count, Func<TArg> factory);
+	public void Insert(int index, int count, Func<int, TArg> factory);
+
+	public void InsertRange(int index, IInputIterator<TArg> first, IInputIterator<TArg> last);
+	public void InsertRange(int index, IStreamingInputIterator<TArg> first, IStreamingIterator<TArg> last) => InsertRange(index, first, last);
+	public void InsertRange(int index, IForwardIterator<TArg> first, IForwardIterator<TArg> last) => InsertRange(index, first, last);
+	public void InsertRange(int index, IBidirectionalIterator<TArg> first, IBidirectionalIterator<TArg> last) => InsertRange(index, first, last);
+	public void InsertRange(int index, IRandomAccessIterator<TArg> first, IRandomAccessIterator<TArg> last) => InsertRange(index, first, last);
+	public void InsertRange(int index, IContiguousIterator<TArg> first, IContiguousIterator<TArg> last) => InsertRange(index, first, last);
+
+	public void InsertRange(int index, IInputIteratable<TArg> items) => InsertRange(index, items.Begin, items.End);
+	public void InsertRange(int index, IStreamingInputIteratable<TArg> items) => InsertRange(index, items.Begin, items.End);
+	public void InsertRange(int index, IForwardIteratable<TArg> items) => InsertRange(index, items.Begin, items.End);
+	public void InsertRange(int index, IBidirectionalIteratable<TArg> items) => InsertRange(index, items.Begin, items.End);
+	public void InsertRange(int index, IRandomAccessIteratable<TArg> items) => InsertRange(index, items.Begin, items.End);
+	public void InsertRange(int index, IContiguousIteratable<TArg> items) => InsertRange(index, items.Begin, items.End);
+}
+
+public interface IContainerInsertAtIterator<TArg>
+{
+	public void Insert(IIterator<TArg> it, TArg value);
+	public void Insert(IIterator<TArg> it, int count, TArg value);
+	public void Insert(IIterator<TArg> it, int count, Func<TArg> factory);
+	public void Insert(IIterator<TArg> it, int count, Func<int, TArg> factory);
+
+	public void InsertRange(IIterator<TArg> it, IInputIterator<TArg> first, IInputIterator<TArg> last);
+	public void InsertRange(IIterator<TArg> it, IStreamingInputIterator<TArg> first, IStreamingIterator<TArg> last) => InsertRange(it, first, last);
+	public void InsertRange(IIterator<TArg> it, IForwardIterator<TArg> first, IForwardIterator<TArg> last) => InsertRange(it, first, last);
+	public void InsertRange(IIterator<TArg> it, IBidirectionalIterator<TArg> first, IBidirectionalIterator<TArg> last) => InsertRange(it, first, last);
+	public void InsertRange(IIterator<TArg> it, IRandomAccessIterator<TArg> first, IRandomAccessIterator<TArg> last) => InsertRange(it, first, last);
+	public void InsertRange(IIterator<TArg> it, IContiguousIterator<TArg> first, IContiguousIterator<TArg> last) => InsertRange(it, first, last);
+
+	public void InsertRange(IIterator<TArg> it, IInputIteratable<TArg> items) => InsertRange(it, items.Begin, items.End);
+	public void InsertRange(IIterator<TArg> it, IStreamingInputIteratable<TArg> items) => InsertRange(it, items.Begin, items.End);
+	public void InsertRange(IIterator<TArg> it, IForwardIteratable<TArg> items) => InsertRange(it, items.Begin, items.End);
+	public void InsertRange(IIterator<TArg> it, IBidirectionalIteratable<TArg> items) => InsertRange(it, items.Begin, items.End);
+	public void InsertRange(IIterator<TArg> it, IRandomAccessIteratable<TArg> items) => InsertRange(it, items.Begin, items.End);
+	public void InsertRange(IIterator<TArg> it, IContiguousIteratable<TArg> items) => InsertRange(it, items.Begin, items.End);
+}
+
+public interface IContainerRemoveAtIndex<TArg>
+{
+	public void Remove(int index);
+	public void Remove(int index, int count);
+}
+
+public interface IContainerRemoveAtIterator<TArg, TIterator> where TIterator : IIterator<TArg>
+{
+	public void Remove(TIterator it);
+	public void Remove(TIterator first, TIterator last);
+}
+
+public interface IContainerAddFront<TArg>
+{
+	public void AddFront(TArg value);
+	public void AddFront(int count, TArg value);
+	public void AddFront(int count, Func<TArg> factory);
+	public void AddFront(int count, Func<int, TArg> factory);
+
+	public void AddFrontRange(IInputIterator<TArg> first, IInputIterator<TArg> last);
+	public void AddFrontRange(IStreamingInputIterator<TArg> first, IStreamingIterator<TArg> last) => AddFrontRange(first, last);
+	public void AddFrontRange(IForwardIterator<TArg> first, IForwardIterator<TArg> last) => AddFrontRange(first, last);
+	public void AddFrontRange(IBidirectionalIterator<TArg> first, IBidirectionalIterator<TArg> last) => AddFrontRange(first, last);
+	public void AddFrontRange(IRandomAccessIterator<TArg> first, IRandomAccessIterator<TArg> last) => AddFrontRange(first, last);
+	public void AddFrontRange(IContiguousIterator<TArg> first, IContiguousIterator<TArg> last) => AddFrontRange(first, last);
+
+	public void AddFrontRange(IInputIteratable<TArg> items) => AddFrontRange(items.Begin, items.End);
+	public void AddFrontRange(IStreamingInputIteratable<TArg> items) => AddFrontRange(items.Begin, items.End);
+	public void AddFrontRange(IForwardIteratable<TArg> items) => AddFrontRange(items.Begin, items.End);
+	public void AddFrontRange(IBidirectionalIteratable<TArg> items) => AddFrontRange(items.Begin, items.End);
+	public void AddFrontRange(IRandomAccessIteratable<TArg> items) => AddFrontRange(items.Begin, items.End);
+	public void AddFrontRange(IContiguousIteratable<TArg> items) => AddFrontRange(items.Begin, items.End);
+}
+
+public interface IContainerAddBack<TArg>
+{
+	public void AddBack(TArg value);
+	public void AddBack(int count, TArg value);
+	public void AddBack(int count, Func<TArg> factory);
+	public void AddBack(int count, Func<int, TArg> factory);
+
+	public void AddBackRange(IInputIterator<TArg> first, IInputIterator<TArg> last);
+	public void AddBackRange(IStreamingInputIterator<TArg> first, IStreamingIterator<TArg> last) => AddBackRange(first, last);
+	public void AddBackRange(IForwardIterator<TArg> first, IForwardIterator<TArg> last) => AddBackRange(first, last);
+	public void AddBackRange(IBidirectionalIterator<TArg> first, IBidirectionalIterator<TArg> last) => AddBackRange(first, last);
+	public void AddBackRange(IRandomAccessIterator<TArg> first, IRandomAccessIterator<TArg> last) => AddBackRange(first, last);
+	public void AddBackRange(IContiguousIterator<TArg> first, IContiguousIterator<TArg> last) => AddBackRange(first, last);
+
+	public void AddBackRange(IInputIteratable<TArg> items) => AddBackRange(items.Begin, items.End);
+	public void AddBackRange(IStreamingInputIteratable<TArg> items) => AddBackRange(items.Begin, items.End);
+	public void AddBackRange(IForwardIteratable<TArg> items) => AddBackRange(items.Begin, items.End);
+	public void AddBackRange(IBidirectionalIteratable<TArg> items) => AddBackRange(items.Begin, items.End);
+	public void AddBackRange(IRandomAccessIteratable<TArg> items) => AddBackRange(items.Begin, items.End);
+	public void AddBackRange(IContiguousIteratable<TArg> items) => AddBackRange(items.Begin, items.End);
+}
+
+public interface IContainerRemoveFront<TArg>
+{
+	public void RemoveFront();
+	public void RemoveFront(int count);
+}
+
+public interface IContainerRemoveBack<TArg>
+{
+	public void RemoveBack();
+	public void RemoveBack(int count);
+}

@@ -4,6 +4,11 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>InfinityOfficialNetwork.StandardLibrary</Title>
+    <Authors>infiniplex</Authors>
+    <Company>Infinity Official Network</Company>
+    <Description>Provides basic components for developing software.</Description>
+    <Copyright>Copyright Infinity Official Network ALL RIGHTS RESERVED</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

@@ -69,7 +69,7 @@ namespace InfinityOfficialNetwork.StandardLibrary.MemoryManagement.Memory
 				Marshal.FreeHGlobal(ptr);
 				GC.RemoveMemoryPressure(size);
 			}
-			else
+			else if (ptr != IntPtr.Zero)
 				throw new InvalidFreeException($"Pointer {ptr.ToString("x")} was not allocated by current allocator or was already freed. THIS IS A CRITICAL MEMORY ERROR!");
 		}
 #else

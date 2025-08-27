@@ -127,10 +127,10 @@ public interface IContainerRemoveAtIndex<TArg>
 	public void Remove(int index, int count);
 }
 
-public interface IContainerRemoveAtIterator<TArg, TIterator> where TIterator : IIterator<TArg>
+public interface IContainerRemoveAtIterator<TArg>
 {
-	public void Remove(TIterator it);
-	public void Remove(TIterator first, TIterator last);
+	public void Remove(IIterator<TArg> it);
+	public void Remove(IIterator<TArg> first, IIterator<TArg> last);
 }
 
 public interface IContainerAddFront<TArg>

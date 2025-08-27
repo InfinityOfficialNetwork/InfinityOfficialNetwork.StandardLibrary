@@ -1,19 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <Title>InfinityOfficialNetwork.StandardLibrary</Title>
-    <Authors>infiniplex</Authors>
-    <Company>Infinity Official Network</Company>
-    <Description>Provides basic components for developing software.</Description>
-    <Copyright>Copyright Infinity Official Network ALL RIGHTS RESERVED</Copyright>
+	<Version>0.0.2</Version>
+	<TargetFramework>net9.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	<Title>InfinityOfficialNetwork.StandardLibrary</Title>
+	<Authors>infiniplex</Authors>
+	<Company>Infinity Official Network</Company>
+	<Description>Provides basic components for developing software.</Description>
+	<Copyright>Copyright Infinity Official Network ALL RIGHTS RESERVED</Copyright>
+	<PackageProjectUrl>https://github.com/InfinityOfficialNetwork/InfinityOfficialNetwork.StandardLibrary</PackageProjectUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<RepositoryUrl>https://github.com/InfinityOfficialNetwork/InfinityOfficialNetwork.StandardLibrary.git</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<IncludeSymbols>True</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	<EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;8500</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;8500</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InfinityOfficialNetwork.StandardLibrary.DataStructures\InfinityOfficialNetwork.StandardLibrary.DataStructures.csproj" />
-    <ProjectReference Include="..\InfinityOfficialNetwork.StandardLibrary.IO\InfinityOfficialNetwork.StandardLibrary.IO.csproj" />
+	<None Include="..\..\InfinityOfficialNetwork\README.md">
+	  <Pack>True</Pack>
+	  <PackagePath>\</PackagePath>
+	</None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DataStructures\Adaptors\" />
+    <Folder Include="IO\" />
   </ItemGroup>
 
 </Project>

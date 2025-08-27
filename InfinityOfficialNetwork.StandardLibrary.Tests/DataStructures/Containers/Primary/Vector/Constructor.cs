@@ -66,4 +66,124 @@ public class Constructor
 			Assert.IsTrue(ints2[i] == ints[i]);
 	}
 
+    [TestMethod]
+    public void Constructor_Default_CreatesEmptyVector()
+    {
+        // Arrange & Act
+        IVector<int> vector = new Vector<int>();
+
+        // Assert
+        Assert.IsTrue(vector.Size == 0);
+        Assert.IsTrue(vector.IsEmpty);
+    }
+
+    [TestMethod]
+    public void Constructor_WithValue_SetsSizeAndValue()
+    {
+        // Arrange & Act
+        IVector<int> vector = new Vector<int>(42);
+
+        // Assert
+        Assert.IsTrue(vector.Size == 1);
+        Assert.IsTrue(vector.Front == 42);
+    }
+
+    [TestMethod]
+    public void Constructor_WithCountAndValue_SetsSize()
+    {
+        // Arrange & Act
+        IVector<int> vector = new Vector<int>(5, 10);
+
+        // Assert
+        Assert.IsTrue(vector.Size == 5);
+    }
+
+    [TestMethod]
+    public void Constructor_WithCountAndValue_FillsWithCorrectValue()
+    {
+        // Arrange & Act
+        IVector<int> vector = new Vector<int>(5, 10);
+
+        // Assert
+        for (int i = 0; i < 5; i++)
+        {
+            Assert.IsTrue(vector.At(i) == 10);
+        }
+    }
+
+    [TestMethod]
+    public void Constructor_WithCountAndValue_ZeroCount_CreatesEmptyVector()
+    {
+        // Arrange & Act
+        IVector<int> vector = new Vector<int>(0, 10);
+
+        // Assert
+        Assert.IsTrue(vector.Size == 0);
+        Assert.IsTrue(vector.IsEmpty);
+    }
+
+    [TestMethod]
+    public void Constructor_WithCountAndFactory_SetsSize()
+    {
+        // Arrange & Act
+        IVector<int> vector = new Vector<int>(10, i => i * 2);
+
+        // Assert
+        Assert.IsTrue(vector.Size == 10);
+    }
+
+    [TestMethod]
+    public void Constructor_WithCountAndFactory_FillsWithCorrectValues()
+    {
+        // Arrange & Act
+        IVector<int> vector = new Vector<int>(10, i => i * 2);
+
+        // Assert
+        for (int i = 0; i < 10; i++)
+        {
+            Assert.IsTrue(vector.At(i) == i * 2);
+        }
+    }
+
+    [TestMethod]
+    public void Constructor_WithCountAndFactory_ZeroCount_CreatesEmptyVector()
+    {
+        // Arrange & Act
+        IVector<int> vector = new Vector<int>(0, i => i * 2);
+
+        // Assert
+        Assert.IsTrue(vector.Size == 0);
+        Assert.IsTrue(vector.IsEmpty);
+    }
+
+    [TestMethod]
+    public void Constructor_WithIteratorRange_CopiesAllElements()
+    {
+        // Arrange
+        IVector<int> sourceVector = new Vector<int>(5, i => i + 1);
+
+        // Act
+        IVector<int> vector = new Vector<int>(sourceVector.Begin, sourceVector.End);
+
+        // Assert
+        Assert.IsTrue(vector.Size == 5);
+        for (int i = 0; i < 5; i++)
+        {
+            Assert.IsTrue(vector.At(i) == i + 1);
+        }
+    }
+
+    [TestMethod]
+    public void Constructor_WithEmptyIteratorRange_CreatesEmptyVector()
+    {
+        // Arrange
+        IVector<int> sourceVector = new Vector<int>();
+
+        // Act
+        IVector<int> vector = new Vector<int>(sourceVector.Begin, sourceVector.End);
+
+        // Assert
+        Assert.IsTrue(vector.Size == 0);
+        Assert.IsTrue(vector.IsEmpty);
+    }
 }

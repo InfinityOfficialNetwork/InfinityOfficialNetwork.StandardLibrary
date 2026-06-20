@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Version>0.0.2</Version>
+		<TargetFramework>net10.0</TargetFramework>
+		<LangVersion>15.0</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Title>InfinityOfficialNetwork.StandardLibrary</Title>
+		<Authors>infiniplex</Authors>
+		<Company>Infinity Official Network</Company>
+		<Description>Provides basic components for developing software.</Description>
+		<Copyright>Copyright Infinity Official Network ALL RIGHTS RESERVED</Copyright>
+		<PackageProjectUrl>https://github.com/InfinityOfficialNetwork/InfinityOfficialNetwork.StandardLibrary</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/InfinityOfficialNetwork/InfinityOfficialNetwork.StandardLibrary.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<AnalysisLevel>latest-all</AnalysisLevel>
+		<LangVersion>preview</LangVersion>
+		
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<NoWarn>1701;1702;8500;2014;1044;1998;1711;1000;9084</NoWarn>
+		<IsAotCompatible>True</IsAotCompatible>
+		<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\InfinityOfficialNetwork\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Types\" />
+	</ItemGroup>
+
+	<!--<ItemGroup>
+		<ProjectReference Include="..\InfinityOfficialNetwork.StandardLibrary.Analyzers\InfinityOfficialNetwork.StandardLibrary.Analyzers\InfinityOfficialNetwork.StandardLibrary.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>-->
+
+</Project>

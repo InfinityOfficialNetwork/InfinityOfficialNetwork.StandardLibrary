@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+	  <GenerateDependencyFile>true</GenerateDependencyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="runtimes\**" />
+    <EmbeddedResource Remove="runtimes\**" />
+    <None Remove="runtimes\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InfinityOfficialNetwork.StandardLibrary\InfinityOfficialNetwork.StandardLibrary.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<NativeFileReference Include="runtimes\win-x64\native\jemalloc.dll">
+			<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+			<Link>jemalloc.dll</Link>
+		</NativeFileReference>
+
+		<NativeFileReference Include="runtimes\win-x86\native\jemalloc.dll">
+			<RuntimeIdentifier>win-x86</RuntimeIdentifier>
+			<Link>jemalloc.dll</Link>
+		</NativeFileReference>
+
+		<NativeFileReference Include="runtimes\linux-x64\native\jemalloc.dll">
+			<RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+			<Link>jemalloc.dll</Link>
+		</NativeFileReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="InfinityOfficialNetwork.Internal.NativeAssets.JeMalloc" Version="1.0.1" />
+	</ItemGroup>
+</Project>

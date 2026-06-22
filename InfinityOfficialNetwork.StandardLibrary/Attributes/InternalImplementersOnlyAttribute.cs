@@ -6,4 +6,4 @@ namespace InfinityOfficialNetwork.StandardLibrary.Attributes;
 /// </summary>
 [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
 public sealed class InternalImplementersOnlyAttribute : Attribute
-{}
+{ }

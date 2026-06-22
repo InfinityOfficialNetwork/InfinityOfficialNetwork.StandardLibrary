@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace InfinityOfficialNetwork.StandardLibrary.Contracts;
 
@@ -41,7 +37,7 @@ public sealed class ContractCompliantAttribute : Attribute
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = true)]
 public sealed class ContractCompliantMethodAttribute : Attribute
-{}
+{ }
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
 public sealed class ContractGuaranteedAttribute : Attribute
@@ -73,7 +69,7 @@ public class ContractFailureException(ContractFailureRecord record) : Exception(
 {
 	public ContractFailureRecord FailureRecord { get; init; } = record;
 
-	public override string Message 
+	public override string Message
 		=> "Contract failure occured, see FailureRecord for more information\nFailure record:\n{0}" + FailureRecord.ToString();
 }
 
@@ -183,10 +179,10 @@ public static class Contract
 	static Action<ContractFailureRecord> failureHandler = DefaultPanicHandler;
 	static Action exitHandler = () => Environment.Exit(1);
 
-	public static void SetFailureHandler(Action<ContractFailureRecord> failureHandler) 
+	public static void SetFailureHandler(Action<ContractFailureRecord> failureHandler)
 		=> Contract.failureHandler = failureHandler;
 
-	public static void SetExitHandler(Action exitHandler) 
+	public static void SetExitHandler(Action exitHandler)
 		=> Contract.exitHandler = exitHandler;
 
 	public static Action<ContractFailureRecord> DefaultPanicHandler => Panic;

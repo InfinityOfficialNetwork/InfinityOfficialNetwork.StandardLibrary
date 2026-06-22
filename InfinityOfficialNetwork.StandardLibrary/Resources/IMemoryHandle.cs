@@ -1,6 +1,6 @@
 ﻿namespace InfinityOfficialNetwork.StandardLibrary.Resources;
 
-public interface IMemoryHandle<TArg> 
+public interface IMemoryHandle<TArg>
 	where TArg : unmanaged
 {
 	unsafe ref TArg this[long index] { get => ref Pointer[index]; }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace InfinityOfficialNetwork.StandardLibrary.IO.Streams;
+﻿namespace InfinityOfficialNetwork.StandardLibrary.IO.Streams;
 
 public enum IOOperationResultKind
 {
@@ -25,11 +21,11 @@ public interface IAsyncStream<TArg> : IDisposable
 public interface IReadOnlyAsyncStreamDevice<TArg> : IDisposable, IAsyncDisposable
 {
 	//public ValueTask<ulong> ReadAsync<TSpan>(TSpan span, CancellationToken cancellationToken = default)
-		//where TSpan : IWriteOnlySpan<TArg>;
+	//where TSpan : IWriteOnlySpan<TArg>;
 
 	//public ValueTask<ulong> ReadAsync<TSpanIteratable, TSpan>(TSpanIteratable container, CancellationToken cancellationToken = default)
-		//where TSpanIteratable : IReadOnlyContainerStreamingIteratable<TSpan>
-		//where TSpan : IWriteOnlySpan<TArg>;
+	//where TSpanIteratable : IReadOnlyContainerStreamingIteratable<TSpan>
+	//where TSpan : IWriteOnlySpan<TArg>;
 }
 
 public interface IReadOnlyAsyncPullBasedStreamDevice<TArg>

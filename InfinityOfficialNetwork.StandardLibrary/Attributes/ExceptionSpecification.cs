@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace InfinityOfficialNetwork.StandardLibrary.Attributes;
+﻿namespace InfinityOfficialNetwork.StandardLibrary.Attributes;
 
 #pragma warning disable CA1813
 #pragma warning disable CA1018

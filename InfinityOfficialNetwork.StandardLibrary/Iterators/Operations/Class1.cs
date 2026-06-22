@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace InfinityOfficialNetwork.StandardLibrary.Iterators.Operations;
+﻿namespace InfinityOfficialNetwork.StandardLibrary.Iterators.Operations;
 public interface IIteratorMoveNext
 {
 	public void MoveNext();

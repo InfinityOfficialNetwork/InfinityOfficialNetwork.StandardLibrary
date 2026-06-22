@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
-using System.Text;
 
 namespace InfinityOfficialNetwork.StandardLibrary.Common;
 public static class UnmanagedExtensions
@@ -110,7 +106,7 @@ public ref struct RefFieldWrapper<TArg> where TArg : allows ref struct
 
 	public RefFieldWrapper(ref TArg value)
 	{
-		interiorPtr = ref Unsafe.As<TArg,byte>(ref value);
+		interiorPtr = ref Unsafe.As<TArg, byte>(ref value);
 	}
 
 	public ref TArg Value => ref Unsafe.As<byte, TArg>(ref interiorPtr);

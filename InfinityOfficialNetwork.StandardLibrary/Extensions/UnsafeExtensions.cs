@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Runtime.CompilerServices;
 
 namespace InfinityOfficialNetwork.StandardLibrary.Extensions;
 public static class UnsafeExtensions
 {
-	extension (Unsafe)
+	extension(Unsafe)
 	{
 		public static unsafe TArg* AsPtr<TArg>(scoped ref TArg arg)
 		{
@@ -45,7 +42,7 @@ public static class UnsafeExtensions
 
 				dst = ref Unsafe.Add(ref dst, uint.MaxValue);
 				src = ref Unsafe.Add(ref src, uint.MaxValue);
-				
+
 				byteCount -= uint.MaxValue;
 			}
 

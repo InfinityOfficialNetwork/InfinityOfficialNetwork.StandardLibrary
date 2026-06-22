@@ -1,14 +1,8 @@
 ﻿using InfinityOfficialNetwork.StandardLibrary.Attributes;
 using InfinityOfficialNetwork.StandardLibrary.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 #pragma warning disable CA1815
 #pragma warning disable CA1000
@@ -26,7 +20,7 @@ public class InvalidAllocationException : OutOfMemoryException
 	{
 		AllocationSize = allocationSize;
 	}
-	public InvalidAllocationException(nuint allocationSize, Exception innerException) : base("Invalid allocation size or not enough memory available.",innerException)
+	public InvalidAllocationException(nuint allocationSize, Exception innerException) : base("Invalid allocation size or not enough memory available.", innerException)
 	{
 		AllocationSize = allocationSize;
 	}
@@ -103,7 +97,7 @@ public static class AllocatorUtilities<TAllocator> where TAllocator : IAllocator
 	public unsafe static TArg** AllocateUninitializedContiguousArray<TArg>(nuint count1, nuint count2)
 	{
 		TArg** ptr = (TArg**)TAllocator.Allocate((nuint)sizeof(TArg*) * count1 + (nuint)sizeof(TArg) * count1 * count2);
-		
+
 		TArg* adjustedPtr = (TArg*)(ptr + count1);
 		for (nuint i = 0; i < count1; i++)
 		{

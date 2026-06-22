@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
 namespace InfinityOfficialNetwork.StandardLibrary.Parallel.Tasks;
 
@@ -32,8 +28,8 @@ public interface IAsyncFunc<out TArg> : INotifyCompletion
 	public TArg GetResult();
 }
 
-public interface IAsyncFunc<out TSelf,out TArg> : IAsyncFunc<TArg>
-	where TSelf : IAsyncFunc<TSelf,TArg>
+public interface IAsyncFunc<out TSelf, out TArg> : IAsyncFunc<TArg>
+	where TSelf : IAsyncFunc<TSelf, TArg>
 {
 	new public TSelf GetAwaiter();
 

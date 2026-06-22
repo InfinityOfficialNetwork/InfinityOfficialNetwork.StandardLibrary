@@ -103,3 +103,15 @@ public static class UnmanagedExtensions
 		Unsafe.InitBlock(ref Unsafe.As<TArg, byte>(ref first), 0, size);
 	}
 }
+
+public ref struct RefFieldWrapper<TArg> where TArg : allows ref struct
+{
+	ref byte interiorPtr;
+
+	public RefFieldWrapper(ref TArg value)
+	{
+		interiorPtr = ref Unsafe.As<TArg,byte>(ref value);
+	}
+
+	public ref TArg Value => ref Unsafe.As<byte, TArg>(ref interiorPtr);
+}

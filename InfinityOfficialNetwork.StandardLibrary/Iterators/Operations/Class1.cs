@@ -1,7 +1,18 @@
-﻿namespace InfinityOfficialNetwork.StandardLibrary.Iterators.Operations;
+﻿
+namespace InfinityOfficialNetwork.StandardLibrary.Iterators.Operations;
 public interface IIteratorMoveNext
 {
 	public void MoveNext();
+}
+
+public interface IIteratorMoveNext<TSelf> : IIteratorMoveNext
+	where TSelf : IIteratorMoveNext<TSelf>, allows ref struct
+{
+	public static virtual TSelf operator+(TSelf self)
+	{
+		self.MoveNext();
+		return self;
+	}
 }
 
 public interface IIteratorMoveNextMany : IIteratorMoveNext

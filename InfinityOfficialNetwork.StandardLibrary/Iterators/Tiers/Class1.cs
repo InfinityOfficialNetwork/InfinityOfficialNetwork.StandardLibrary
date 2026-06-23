@@ -22,6 +22,7 @@ public interface IStreamIterator<TSelf, TArg>
 public interface IRefStreamIterator<TSelf, TArg>
 	: IRefStreamIterator<TArg>, IStreamIterator<TSelf, TArg>
 	where TSelf : IRefStreamIterator<TSelf, TArg>, allows ref struct
+	where TArg : allows ref struct
 { }
 
 public interface IReadOnlyForwardIterator<TSelf, out TArg>
@@ -42,6 +43,7 @@ public interface IForwardIterator<TSelf, TArg>
 public interface IRefForwardIterator<TSelf, TArg>
 	: IRefForwardIterator<TArg>, IForwardIterator<TSelf, TArg>, IRefStreamIterator<TSelf, TArg>
 	where TSelf : IRefForwardIterator<TSelf, TArg>, allows ref struct
+	where TArg : allows ref struct
 { }
 
 public interface IReadOnlyBidirectionalIterator<TSelf, out TArg>
@@ -62,6 +64,7 @@ public interface IBidirectionalIterator<TSelf, TArg>
 public interface IRefBidirectionalIterator<TSelf, TArg>
 	: IRefBidirectionalIterator<TArg>, IBidirectionalIterator<TSelf, TArg>, IRefForwardIterator<TSelf, TArg>
 	where TSelf : IRefBidirectionalIterator<TSelf, TArg>, allows ref struct
+	where TArg : allows ref struct
 { }
 
 public interface IReadOnlyRandomAccessIterator<TSelf, out TArg>
@@ -82,17 +85,19 @@ public interface IRandomAccessIterator<TSelf, TArg>
 public interface IRefRandomAccessIterator<TSelf, TArg>
 	: IRefRandomAccessIterator<TArg>, IRandomAccessIterator<TSelf, TArg>, IRefBidirectionalIterator<TSelf, TArg>
 	where TSelf : IRefRandomAccessIterator<TSelf, TArg>, allows ref struct
+	where TArg : allows ref struct
 { }
 
 //implies the refs from Value between 2 iterators from the same container span a contiguous range of elements
 public interface IContiguousIterator<TSelf, TArg>
 	: IContiguousIterator<TArg>, IRefRandomAccessIterator<TSelf, TArg>
 	where TSelf : IContiguousIterator<TSelf, TArg>, allows ref struct
+	where TArg : allows ref struct
 { }
 
 //allows taking a raw pointer address
 public interface IAddressableIterator<TSelf, TArg>
 	: IAddressableIterator<TArg>, IContiguousIterator<TSelf, TArg>
 	where TSelf : IAddressableIterator<TSelf, TArg>, allows ref struct
-	where TArg : unmanaged
+	where TArg : allows ref struct
 { }

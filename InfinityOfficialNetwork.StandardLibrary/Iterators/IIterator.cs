@@ -28,28 +28,28 @@ public interface IIterator
 			// Since TIteratorActual is dynamically resolved to the exact concrete type of TConstrainedIterator,
 			// we can safely cast our _end (which is of type TConstrainedIterator) to TIteratorActual without boxing.
 			ref TIteratorActual endActual = ref Unsafe.As<TIterator, TIteratorActual>(ref _end);
-			_visitor.VisitReadOnlyStreamIterator(iterator, endActual);
+			_visitor.VisitReadOnlyStreamIteration(iterator, endActual);
 		}
 
 		public void VisitReadOnlyForwardIterator<TIteratorActual>(TIteratorActual iterator)
 			where TIteratorActual : IReadOnlyForwardIterator<TArg>, allows ref struct
 		{
 			ref TIteratorActual endActual = ref Unsafe.As<TIterator, TIteratorActual>(ref _end);
-			_visitor.VisitReadOnlyForwardIterator(iterator, endActual);
+			_visitor.VisitReadOnlyForwardIteration(iterator, endActual);
 		}
 
 		public void VisitReadOnlyBidirectionalIterator<TIteratorActual>(TIteratorActual iterator)
 			where TIteratorActual : IReadOnlyBidirectionalIterator<TArg>, allows ref struct
 		{
 			ref TIteratorActual endActual = ref Unsafe.As<TIterator, TIteratorActual>(ref _end);
-			_visitor.VisitReadOnlyBidirectionalIterator(iterator, endActual);
+			_visitor.VisitReadOnlyBidirectionalIteration(iterator, endActual);
 		}
 
 		public void VisitReadOnlyRandomAccessIterator<TIteratorActual>(TIteratorActual iterator)
 			where TIteratorActual : IReadOnlyRandomAccessIterator<TArg>, allows ref struct
 		{
 			ref TIteratorActual endActual = ref Unsafe.As<TIterator, TIteratorActual>(ref _end);
-			_visitor.VisitReadOnlyRandomAccessIterator(iterator, endActual);
+			_visitor.VisitReadOnlyRandomAccessIteration(iterator, endActual);
 		}
 	}
 

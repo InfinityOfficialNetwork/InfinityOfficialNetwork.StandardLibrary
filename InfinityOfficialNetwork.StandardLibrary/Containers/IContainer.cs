@@ -16,12 +16,30 @@ public interface IAsyncIteratable<out TIteratorTier, out TIterator, out TAwaitab
 	public TAwaitable GetEndAsync(CancellationToken cancellationToken = default);
 }
 
+public interface IAsyncReverseIteratable<out TIteratorTier, out TIterator, out TAwaitable>
+	where TIteratorTier : IIterator
+	where TIterator : TIteratorTier
+	where TAwaitable : IAsyncFunc<TAwaitable, TIterator>
+{
+	public TAwaitable GetReverseBeginAsync(CancellationToken cancellationToken = default);
+	public TAwaitable GetReverseEndAsync(CancellationToken cancellationToken = default);
+}
+
+
 public interface IIteratable<out TIteratorTier, out TIterator>
 	where TIteratorTier : IIterator
 	where TIterator : TIteratorTier, allows ref struct
 {
 	public TIterator Begin { get; }
 	public TIterator End { get; }
+}
+
+public interface IReverseIteratable<out TIteratorTier, out TIterator>
+	where TIteratorTier : IIterator
+	where TIterator : TIteratorTier, allows ref struct
+{
+	public TIterator ReverseBegin { get; }
+	public TIterator ReverseEnd { get; }
 }
 
 
@@ -125,6 +143,61 @@ public interface IRefContainerAtIndex<TArg> : IContainerAtIndex<TArg>
 }
 
 
+
+public interface IReadOnlyContainerFront<out TArg>
+	where TArg : allows ref struct
+{
+	public TArg GetFront();
+	public TArg? TryGetFront();
+}
+
+public interface IWriteOnlyContainerFront<in TArg>
+	where TArg : allows ref struct
+{
+	public void SetFront(TArg value);
+	public bool TrySetFront(TArg value);
+}
+
+public interface IContainerFront<TArg> : IReadOnlyContainerFront<TArg>, IWriteOnlyContainerFront<TArg>
+	where TArg : allows ref struct
+{
+	public TArg Front { get; set; }
+}
+
+public interface IRefContainerFront<TArg> : IContainerFront<TArg>
+	where TArg : allows ref struct
+{
+	new public ref TArg Front { get; }
+}
+
+
+public interface IReadOnlyContainerBack<out TArg>
+	where TArg : allows ref struct
+{
+	public TArg GetBack();
+	public TArg? TryGetBack();
+}
+
+public interface IWriteOnlyContainerBack<in TArg>
+	where TArg : allows ref struct
+{
+	public void SetBack(TArg value);
+	public bool TrySetBack(TArg value);
+}
+
+public interface IContainerBack<TArg> : IReadOnlyContainerBack<TArg>, IWriteOnlyContainerBack<TArg>
+	where TArg : allows ref struct
+{
+	public TArg Back { get; set; }
+}
+
+public interface IRefContainerBack<TArg> : IContainerBack<TArg>
+	where TArg : allows ref struct
+{
+	new public ref TArg Back { get; }
+}
+
+
 ////
 ///
 
@@ -225,3 +298,13 @@ public interface IContainerTakeAtIterator<out TArg, in TIterator>
 	public TArg? TryTakeAtIterator<TOutputIterator>(TIterator begin, TOutputIterator first, TOutputIterator last) where TOutputIterator : IWriteOnlyStreamIterator<TArg>, allows ref struct;
 	public ulong TryTakeAtIteratorRange<TOutputIterator>(TIterator begin, TIterator end, TOutputIterator first, TOutputIterator last) where TOutputIterator : IWriteOnlyStreamIterator<TArg>, allows ref struct;
 }
+
+public interface IContainerAssign<in TArg>
+{
+	public void Assign(TArg value, ulong count);
+	public void Assign<TInputIterator>(TInputIterator first, TInputIterator last) where TInputIterator : IReadOnlyStreamIterator<TArg>;
+
+	public bool TryAssign(TArg value, ulong count);
+	public ulong TryAssign<TInputIterator>(TInputIterator first, TInputIterator last) where TInputIterator : IReadOnlyStreamIterator<TArg>;
+}
+
